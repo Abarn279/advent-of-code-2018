@@ -15,8 +15,6 @@ while True:
 
     freqset.add(_sum)
 
-    i += 1
-    if i == len(inp):
-        i = 0
+    i = (i + 1) % len(inp)
 
     
