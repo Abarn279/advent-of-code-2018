@@ -1,6 +1,7 @@
 from file_importer import FileImporter
 
 def get_dif_inds(str1, str2): 
+    ''' get a list of indices where differences occur between each string '''
     difs = []
 
     for j in range(len(str1)):                       # Assume both are same length
