@@ -7,6 +7,7 @@ class Claim():
         self.y = y
         self.width = w
         self.height = h
+        self.no_overlap = True
 
 def get_claims(claim_strs):
     claims = []
@@ -34,9 +35,11 @@ for claim in claims:
         for col in range(claim.x, claim.x + claim.width):
             if grid[row][col] == '.':                               # Never been hit before
                 grid[row][col] = claim.id
-            elif grid[row][col] not in ['.', '#']:                  # First overlap
-                grid[row][col] = '#'
-                overlap_count += 1
-            else:                                                   # Case where 2nd or more overlap do nothing
-                pass                                                        
-print(overlap_count)
+            else:                        
+                claims[int(grid[row][col]) - 1].no_overlap = False  # Mark the claim that had this space as being overlapped
+                claim.no_overlap = False                            # Also mark the current claim as overlapped
+
+for claim in claims:
+    if claim.no_overlap:
+        print(claim.id)
+        break
