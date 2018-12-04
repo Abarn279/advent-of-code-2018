@@ -11,7 +11,7 @@ guards_total_min_slept = defaultdict(int)                                       
 curr_guard = 0                                                                  # ID of current guard 
 min_fall_asleep = 0                                                             # Minute the current guard fell asleep, tracking for when they wake.
 
-for record in sorted_inp:
+for record in sorted_inp:                                                       # CREATE CHART
     re_match = re.match('\[(\d+-\d+-\d+ \d+:(\d+))\] (.*)', record) 
     [date, minute, action] = re_match.groups()                                  # Unpack date, minute, and action from the input
     date = date.split(' ')[0]                                                   # Get rid of hour/minute for date
