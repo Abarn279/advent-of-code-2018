@@ -24,7 +24,7 @@ for record in sorted_inp:
 
     elif action.startswith("wakes"):
         for i in range(min_fall_asleep, int(minute)):
-            guard_asleep_chart[(date, curr_guard)][i] = '#'                    # Set sleep ID of chart to this ID
+            guard_asleep_chart[(date, curr_guard)][i] = '#'                    # Mark this entry as asleep
 
         guards_total_min_slept[curr_guard] += int(minute) - min_fall_asleep    
 
