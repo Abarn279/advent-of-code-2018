@@ -2,8 +2,7 @@ from file_importer import FileImporter
 
 polymer = FileImporter.get_input("/../input/5.txt")
 
-def is_opp_polar(a, b): 
-    return ord(a) - 32 == ord(b) or ord(a) + 32 == ord(b)
+is_opp_polar = lambda a, b: ord(a) - 32 == ord(b) or ord(a) + 32 == ord(b)
 
 i = 0
 while i < len(polymer) - 1: 
