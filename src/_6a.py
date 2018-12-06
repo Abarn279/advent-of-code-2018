@@ -33,12 +33,10 @@ class PointGrid:
 
         for point in self.pt_list:
             self.grid[point.y][point.x] = point
-            if point.x == self.xmin or point.x == self.xmax or point.y == self.ymin or point.y == self.ymax:
-                point.infinite = True
 
-        self.areas = {i.id : 0 for i in list(filter(lambda x: not x.infinite, self.pt_list))}
+        self.areas = {i.id : 1 for i in self.pt_list}
         
-    def fill_non_infinite(self):
+    def fill_nearest(self):
         for y in range(len(self.grid)):
             for x in range(len(self.grid[y])):
                 if self.grid[y][x] == '.':
@@ -56,6 +54,17 @@ class PointGrid:
                     if (nearest_key in self.areas):
                         self.areas[nearest_key] += 1
 
+    def get_biggest_area(self):
+        for x in range(self.xmin, self.xmax + 1):
+            self.areas.pop(str(self.grid[self.ymin][x]).upper(), None)
+            self.areas.pop(str(self.grid[self.ymax][x]).upper(), None)
+
+        for y in range(self.ymin, self.ymax + 1):
+            self.areas.pop(str(self.grid[y][self.xmin]).upper(), None)
+            self.areas.pop(str(self.grid[y][self.xmax]).upper(), None)
+
+        return self.areas[max(self.areas, key = self.areas.get)]
+
     def __repr__(self):
         ''' View for debugging '''
         st = ""
@@ -72,6 +81,6 @@ class PointGrid:
 points = [Point(list(map(int, i.split(', ')))) for i in FileImporter.get_input("/../input/6.txt").split("\n")]
 
 pointgrid = PointGrid(points)
-pointgrid.fill_non_infinite()
+pointgrid.fill_nearest()
 
-print( pointgrid.areas[max(pointgrid.areas, key = pointgrid.areas.get)] + 1) # Add one for self
+print(pointgrid.get_biggest_area())
