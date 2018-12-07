@@ -1,5 +1,4 @@
 from file_importer import FileImporter
-from queue import Queue
 import string
 
 class Node:
