@@ -1,5 +1,4 @@
 from file_importer import FileImporter
-from aoc_utils import id_gen
 import re
 
 class Marble:
@@ -51,7 +50,6 @@ class MarbleCircle:
         return val
         
 inp = FileImporter.get_input("/../input/9.txt")
-id_gen = id_gen(0)
 [players, last_marble] = [i for i in re.match('(\d+) players; last marble is worth (\d+) points', inp).groups()]
 player_scores = [0 for i in range(int(players))]
 circle = MarbleCircle()
