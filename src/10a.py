@@ -23,6 +23,9 @@ class Point:
     def update(self):
         self.pos.x += self.vel.x
         self.pos.y += self.vel.y
+    def rev_update(self):
+        self.pos.x -= self.vel.x
+        self.pos.y -= self.vel.y
 
 # Setup gui and canvas
 gui = Tk()
@@ -50,23 +53,22 @@ def draw_grid():
     for y in range(0, c_height, point_size):
         canvas.create_line(0, y, c_width, y)
 
+current_min = 10000000
 for update in range(50000):
-    drawing = False
-
-    if max(points, key = lambda point: point.pos.x).pos.x - min(points, key = lambda point: point.pos.x).pos.x < 200:
-        drawing = True
-
     for point in points:
         point.update()
 
-        if drawing:
-            top_left_coords = get_canvas_point(point)
-            canvas.create_rectangle(top_left_coords.x, top_left_coords.y, top_left_coords.x + point_size, top_left_coords.y + point_size, fill = "#000000")
-    
-    if drawing:
-        draw_grid()
-        gui.update()
-        sleep(.35)
-        canvas.delete('all')
+    new_min = max(points, key = lambda point: point.pos.x).pos.x - min(points, key = lambda point: point.pos.x).pos.x
+    if new_min > current_min:
+        for point in points:
+            point.rev_update()
+        break
+    else:
+        current_min = new_min
 
+for point in points:
+    canvas_point = get_canvas_point(point)
+    canvas.create_rectangle(canvas_point.x, canvas_point.y, canvas_point.x + point_size, canvas_point.y + point_size, fill = "#000000")
+    
+draw_grid()
 mainloop()
