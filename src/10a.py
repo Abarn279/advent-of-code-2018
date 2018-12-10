@@ -54,7 +54,7 @@ def draw_grid():
         canvas.create_line(0, y, c_width, y)
 
 current_min = 10000000
-while True
+while True:
     for point in points:
         point.update()
 
