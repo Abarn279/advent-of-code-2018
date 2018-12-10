@@ -1,9 +1,3 @@
-###################
-#
-# Note - this is a visual program. Upon running, it will pull up a canvas that cycles through the point updates, creating a visual of letters.
-#
-###################
-
 from file_importer import FileImporter
 import re
 
