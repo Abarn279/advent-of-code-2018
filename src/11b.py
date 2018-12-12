@@ -46,8 +46,8 @@ def get_subgrid_total(grid, x, y, s):
         # Add the bottom row
         for xn in range(x, x + s):
             subgrid_power_level += get_subgrid_total(grid, xn, y + s - 1, 1)
-        # Add the right column
-        for yn in range(y, y + s):
+        # Add the right column, minus the bottom right corner (already counted above)
+        for yn in range(y, y + s - 1):
             subgrid_power_level += get_subgrid_total(grid, x + s - 1, yn, 1)
 
     subgrid_sums_by_size[(x, y, s)] = subgrid_power_level
