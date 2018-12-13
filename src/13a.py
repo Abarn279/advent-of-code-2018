@@ -7,7 +7,6 @@ import uuid
 #              UP       RIGHT   DOWN    LEFT
 DIRECTIONS = [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)]
 ARROW_TO_DIRECTION = { '^' : 0, '>' : 1, 'v' : 2, '<' : 3 }
-DIRECTION_TO_ARROW = { 0 : '^', 1 : '>', 2 : 'v', 3 : '<' }
 ARROW_TO_GRID_UNDER = { '^' : '|', '>' : '-', 'v' : '|', '<' : '-' }
 
 class Cart:
