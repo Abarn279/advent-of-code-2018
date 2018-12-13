@@ -44,25 +44,35 @@ class Cart:
                 self.direction_ind = (self.direction_ind + 1) % 4
 
     def tick(self, grid, other_carts):
-        ''' Tick. return true if collision '''
+        ''' Tick. return a tuple of the two colliding objects if theres a collision '''
         self.turn(grid)
         self.position = self.position + DIRECTIONS[self.direction_ind]
         for other_cart in other_carts:
             if other_cart.position == self.position:
                 return (self, other_cart)
-        return False
+        return None
 
 def sort_carts(carts):
     carts = sorted(carts, key = lambda x: x.position.y)
     return sorted(carts, key = lambda x: x.position.x)
 
-def get_first_collision_point(grid, carts):
+def get_final_cart_position(grid, carts):
+    sorted_carts = carts[:]
     while True:
-        sorted_carts = sort_carts(carts)
+        sorted_carts = sort_carts(sorted_carts)
+        to_remove_ids = []
         for cart in sorted_carts:
             other_carts = [i for i in sorted_carts if i.id != cart.id]
-            if cart.tick(grid, other_carts):
-                return cart.position
+
+            colliding_carts = cart.tick(grid, other_carts)
+
+            if colliding_carts is not None:
+                to_remove_ids = to_remove_ids + [i.id for i in colliding_carts]
+
+        sorted_carts = [i for i in sorted_carts if i.id not in to_remove_ids]
+
+        if len(sorted_carts) == 1:
+            return sorted_carts[0].position
 
 grid = [list(i) for i in FileImporter.get_input("/../input/13.txt").split("\n")]
 carts = []
@@ -75,4 +85,4 @@ for y in range(len(grid)):
             carts.append(new_cart)
             grid[y][x] = ARROW_TO_GRID_UNDER[grid[y][x]]
 
-print(get_first_collision_point(grid, carts))
+print(get_final_cart_position(grid, carts))
