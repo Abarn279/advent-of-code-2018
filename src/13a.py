@@ -49,7 +49,7 @@ class Cart:
         self.position = self.position + DIRECTIONS[self.direction_ind]
         for other_cart in other_carts:
             if other_cart.position == self.position:
-                return (self, other_cart)
+                return True
         return False
 
 def sort_carts(carts):
