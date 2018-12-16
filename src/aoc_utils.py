@@ -8,6 +8,8 @@ class Vector2:
         return self.add(other)
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
+    def __hash__(self):
+        return hash(f'{self.x},{self.y}')
     def __repr__(self):
         return 'x: ' + str(self.x) + ', y: ' + str(self.y)
     def __str__(self):
