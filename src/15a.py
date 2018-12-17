@@ -19,6 +19,7 @@ class Unit:
         self.team = team
         self.id = uuid.uuid1()
         self.hp = 200
+        self.is_dead = False
         self.ad = 3
 
     def attack_in_range(self, enemies):
@@ -29,7 +30,7 @@ class Unit:
 
         if len(in_range_enemies) > 0:
             # Sort enemies by hp, then by reading order, attack first enemy
-            in_range_enemies = sorted(in_range_enemies, key = lambda enemy: (enemy.hp, enemy.pos.x, enemy.pos.y))
+            in_range_enemies = sorted(in_range_enemies, key = lambda enemy: (enemy.hp, enemy.pos.y, enemy.pos.x))
 
             killed_enemy_id = None
             # If enemy dies, note it in the hitinfo returned
@@ -82,7 +83,9 @@ class Unit:
     def take_damage(self, damage_amount):
         ''' Takes damage. returns true if unit dies. '''
         self.hp -= damage_amount
-        return self.hp <= 0
+        if self.hp <= 0:
+            self.is_dead = True
+        return self.is_dead
 
     def __repr__(self):
         return f'{self.team.name} at ({self.pos.x}, {self.pos.y}) with {self.hp} hp'
@@ -92,6 +95,7 @@ class GameManager:
         self.grid = grid
         self.rounds_completed = 0
         self.units: list[Unit] = []
+        self.game_over = False
         for y in range(len(self.grid)):
             for x in range(len(self.grid[y])):
                 if self.grid[y][x] == 'G':
@@ -100,11 +104,10 @@ class GameManager:
                     self.units.append(Unit(Vector2(x, y), Team.ELVES))
 
     def sort_units(self):
-        self.units = sorted(self.units, key = lambda unit: unit.pos.x)
-        self.units = sorted(self.units, key = lambda unit: unit.pos.y)
+        self.units = sorted(self.units, key = lambda unit: (unit.pos.y, unit.pos.x))
 
     def get_all_enemy_units(self, friendly_team):
-        return [i for i in self.units if i.team != friendly_team]
+        return [i for i in self.units if i.team != friendly_team and not i.is_dead]
 
     def get_all_moveable_squares_in_range(self, pos: Vector2):
         positions = []
@@ -131,9 +134,7 @@ class GameManager:
     def kill_unit(self, _id):
         ''' Kills a unit by id '''
         [unit] = [i for i in self.units if i.id == _id]
-        self.units = [i for i in self.units if i.id != _id]
         self.grid[unit.pos.y][unit.pos.x] = '.'
-        del unit
 
     def get_next_move(self, starting_position: Vector2, ending_positions: set):
         ''' Breadth first search to find the nearest position for the starting position to move to if trying to move towards the closest ending position '''
@@ -154,7 +155,7 @@ class GameManager:
             if pos in ending_positions:
                 distances[pos] = (dist, path)
 
-            nearby = sorted(sorted([i for i in self.get_all_moveable_squares_in_range(pos) if i not in visited], key = lambda z: z.x), key = lambda z: z.y)
+            nearby = sorted([i for i in self.get_all_moveable_squares_in_range(pos) if i not in visited], key = lambda z: (z.y, z.x))
 
             for square in nearby:
                 visited.add(square)
@@ -166,39 +167,32 @@ class GameManager:
         min_dist = min(distances.values(), key = lambda x: x[0])[0]
 
         possible_move_towards = [p for p, d in distances.items() if d[0] == min_dist]
-        final_move_towards = sorted(sorted(possible_move_towards, key = lambda unit: unit.x), key = lambda unit: unit.y)[0]
+        final_move_towards = sorted(possible_move_towards, key = lambda unit: (unit.y, unit.x))[0]
         
         path_to_move_down = distances[final_move_towards][1]
         return path_to_move_down[1]
-
-    def game_over(self):
-        return all(x.team == Team.ELVES for x in self.units) or all(x.team == Team.GOBLINS for x in self.units)
 
     def do_round(self):
         self.sort_units()
 
         for unit in self.units:
+            if unit.is_dead: continue
             if not unit.take_turn(self):
+                self.game_over = True
                 return
+
+        # Clean dead units
+        self.units = [i for i in self.units if not i.is_dead]
 
         self.rounds_completed += 1
 
     def get_combined_health(self):
-        return sum(i.hp for i in self.units)
-
-    def print_grid(self):
-        print()
-        for i in self.grid:
-            for c in i:
-                print(c, end="")
-            print()
+        return sum(i.hp for i in self.units if not i.is_dead)
         
 
 game_manager = GameManager([list(i) for i in FileImporter.get_input("/../input/15.txt").split("\n")])
 
-while not game_manager.game_over():
+while not game_manager.game_over:
     game_manager.do_round()
-    
 
 print((game_manager.rounds_completed) * game_manager.get_combined_health())
-print(game_manager.print_grid())
