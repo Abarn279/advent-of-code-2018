@@ -4,6 +4,10 @@ class Vector2:
         self.y = y
     def add(self, other):
         return Vector2(self.x + other.x, self.y + other.y)
+    def to_tuple(self):
+        return (self.x, self.y)
+    def to_yx_tuple(self):
+        return (self.y, self.x)
     def __add__(self, other):
         return self.add(other)
     def __eq__(self, other):
