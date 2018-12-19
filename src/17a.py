@@ -30,34 +30,33 @@ for i in inp:
         else:
             grid[(first, i)] = '#'
 
-# Put the spout
-grid[(0, 500)] = '+'
-
 ymax = max(grid.keys(), key = lambda x: x[0])[0]
 ymin = min(grid.keys(), key = lambda x: x[0])[0]
 xmax = max(grid.keys(), key = lambda x: x[1])[1]
 xmin = min(grid.keys(), key = lambda x: x[1])[1]
 
-COUNT_WATER = 0
+# Put the spout
+grid[(0, 500)] = '+'
 
 def print_grid_around_cursor(grid, cursor):
     print('\n'*50)
     for y in range(cursor.y - 50, cursor.y + 50):
         for x in range(cursor.x - 50, cursor.x + 50):
+            if Vector2(x, y) == cursor:
+                print('O', end="")
+                continue
             print(grid[(y, x)], end="")
         print()
 
 def print_grid(grid):
     print('\n'*50)
     for y in range(ymin, ymax + 1):
-        for x in range(xmin, xmax + 1):
+        for x in range(xmin - 1, xmax + 2):
             print(grid[(y, x)], end="")
         print()
 
 def fill_left_right_get_new_cursors(grid, cursor): 
     ''' Fill the spaces to the left/right, return an array of new cursors '''
-    global COUNT_WATER
-
     left_cursor = cursor + DIRECTIONS.LEFT.value
     right_cursor = cursor + DIRECTIONS.RIGHT.value
 
@@ -82,7 +81,6 @@ def fill_left_right_get_new_cursors(grid, cursor):
 
             if under_left_grid_item in '~#':
                 grid[(left_cursor.to_yx_tuple())] = '|'
-                COUNT_WATER += 1
                 left_cursor = left_cursor + DIRECTIONS.LEFT.value
                 continue
             
@@ -107,7 +105,6 @@ def fill_left_right_get_new_cursors(grid, cursor):
 
             if under_right_grid_item in '~#':
                 grid[(right_cursor.to_yx_tuple())] = '|'
-                COUNT_WATER += 1
                 right_cursor = right_cursor + DIRECTIONS.RIGHT.value
                 continue
             
@@ -138,18 +135,15 @@ queue.put(Vector2(500, 1))
 while not queue.empty():
 
     cursor = queue.get()
-    # print_grid_around_cursor(grid, cursor)
-    # time.sleep(1)
     while True:
         if cursor.y > ymax:
             break
 
-        if grid[cursor.to_yx_tuple()] == '|':
+        if grid[cursor.to_yx_tuple()] in '|~':
             break
 
         if grid[cursor.to_yx_tuple()] == '.':
             grid[cursor.to_yx_tuple()] = '|'
-            COUNT_WATER += 1
             # print_grid(grid)
 
         peek_down = cursor + DIRECTIONS.DOWN.value
@@ -176,4 +170,4 @@ while not queue.empty():
             # Move onto next cursor
             break
 
-print(COUNT_WATER)
+print(sum(1 for coords, val in grid.items() if val in '|~' and coords[0] >= ymin))
