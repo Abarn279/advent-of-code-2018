@@ -150,4 +150,4 @@ while not queue.empty():
             # Move onto next cursor
             break
 
-print(sum(1 for coords, val in grid.items() if val in '|~' and coords[0] >= ymin))
+print(sum(1 for coords, val in grid.items() if val in '~' and coords[0] >= ymin))
