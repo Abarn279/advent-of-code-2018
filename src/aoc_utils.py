@@ -22,6 +22,31 @@ class Vector2:
     def __str__(self):
         return self.__repr__()
 
+class Vector3:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+    def to_tuple(self):
+        return (self.x, self.y, self.z)
+    def manhattan_distance(self, other):
+        return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)
+    def __add__(self, other):
+        return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
+    def __mul__(self, other):
+        if isinstance(other, int) or isinstance(other, float):
+            return Vector3(self.x * other, self.y * other, self.z * other)
+        if isinstance(other, Vector3):
+            return Vector3(self.x * other.x, self.y * other.y, self.z * other.z)
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.z == other.z
+    def __hash__(self):
+        return hash(f'{self.x},{self.y},{self.z}')
+    def __repr__(self):
+        return 'x: ' + str(self.x) + ', y: ' + str(self.y) + ', z: ' + str(self.z)
+    def __str__(self):
+        return self.__repr__()
+
 def id_gen(start_at):
     while True:
         yield start_at
