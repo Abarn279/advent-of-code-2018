@@ -3,7 +3,7 @@ from math import ceil
 import re
 
 class Group:
-    def __init__(self, num_units: int, hp: int, immunities: list, weaknesses: list, typ: str, ad: int, initiative: 10):
+    def __init__(self, num_units: int, hp: int, immunities: list, weaknesses: list, typ: str, ad: int, initiative: int):
         self.max_units = num_units
         self.hp_per_unit = hp
         self.combined_hp = hp * self.max_units
@@ -17,7 +17,7 @@ class Group:
         self.targeted_by = None
 
     def get_current_units(self):
-        return ceil(self.combined_hp / self.hp_per_unit)
+        return self.combined_hp // self.hp_per_unit
 
     def get_effective_power(self):
         return self.get_current_units() * self.ad
@@ -57,11 +57,12 @@ class Team:
         self.groups = groups
 
     def is_all_dead(self):
-        return len(self.groups) == 0
+        return all(i.is_dead() for i in self.groups)
 
     def do_target_selection(self, enemy_team):
         groups = sorted(self.groups, key = lambda x: (x.get_effective_power(), x.initiative), reverse = True)
-        for group in self.groups:
+
+        for group in groups:
             group.do_target_selection(enemy_team.groups)
 
     def unset_targets(self):
@@ -89,8 +90,8 @@ class GameManager:
         all_groups = sorted(all_groups, key = lambda x: x.initiative, reverse = True)
 
         for group in all_groups:
-            if group.is_dead(): continue
-            if group.target == None: continue
+            if group.is_dead() or group.target == None: 
+                continue
             
             group.target.take_damage(group.target.damage_would_take_from(group))
 
@@ -110,8 +111,6 @@ class GameManager:
 
     def get_winning_army_units(self):
         return max(self.immune_system.get_total_units(), self.infection.get_total_units())
-
-
 
 imm_inp, inf_inp = FileImporter.get_input("/../input/24.txt").split("\n\n")
 imm_inp = imm_inp.split('\n');imm_inp.pop(0)
