@@ -1,37 +1,23 @@
 from file_importer import FileImporter
-from aoc_utils import Vector2, astar
+from aoc_utils import Vector2
+from searches import astar
+from enum import Enum
+
+class Tools(Enum):
+    CLIMBINGGEAR = 0
+    TORCH = 1
+    NEITHER = 2
 
 geological_indexes = {}
 erosion_levels = {}
-risk_levels = {}
 
 inp = FileImporter.get_input("/../input/22.txt").split("\n")
 
 depth = int(inp[0].split(' ')[1].replace(',', ''))
 target = Vector2(*list(map(int, inp[1].split(' ')[1].split(','))))
 
-# TEMP
-def print_ary(ary):
-    for y in ary:
-        for x in y:
-            char = ""
-            if x == 0:
-                char = '.'
-            elif x == 1:
-                char = '='
-            elif x == 2:
-                char = '|'
-            print(char, end=" ") 
-        print()
-
 def get_risk_level(coords: Vector2):
-    global risk_levels
-    coord_key = coords.to_tuple()
-    if coord_key in risk_levels:
-        return risk_levels[coord]
-    risk_level = get_erosion_level(coords) % 3
-    risk_levels[coord_key] = risk_level
-    return risk_level
+    return get_erosion_level(coords) % 3
 
 def get_erosion_level(coords: Vector2):
     '''A region's erosion level is its geologic index plus the cave system's depth, all modulo 20183. Then:
@@ -76,17 +62,53 @@ Otherwise, the region's geologic index is the result of multiplying the erosion 
     geological_indexes[coord_key] = answer
     return answer
 
-# Fill risks
-print(sum(get_risk_level(Vector2(x, y)) for x in range(target.x + 10) for y in range(target.y + 10)))
+class Node:
+    def __init__(self, coords, tool): 
+        self.coords = coords
+        self.tool = tool
+    def __lt__(self, other):
+        return False
 
-array = [[None for x in range(target.x + 10)] for y in range(target.y + 10)]
-for k in risk_levels:
-    array[k[1]][k[0]] = risk_levels[k]
-print_ary(array)
+def heuristic(a):
+    global target
+    return a.coords.manhattan_distance(target)
 
-def heuristic(a, b):
-    return (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2
+def cost(a, b):
+    return 1 if a.tool == b.tool else 7
 
-d = astar(array, (0, 0), target.to_yx_tuple(), heuristic)
+def is_valid_tool(risk_level, tool):
+    if risk_level == 0:
+        return tool in [Tools.CLIMBINGGEAR, Tools.TORCH]
+    if risk_level == 1:
+        return tool in [Tools.CLIMBINGGEAR, Tools.NEITHER]
+    if risk_level == 2:
+        return tool in [Tools.TORCH, Tools.NEITHER]
 
-print()
+tools = set([Tools.CLIMBINGGEAR, Tools.TORCH, Tools.NEITHER])
+def get_neighbors(a):
+    neighbors = []
+
+    new_steps = [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]
+    new_steps = [i for i in new_steps if a.coords.x + i.x >= 0 and a.coords.y + i.y >= 0]
+    for step in new_steps:
+        coords = a.coords + step
+        if is_valid_tool(get_risk_level(coords), a.tool):
+            neighbors.append(Node(coords, a.tool))
+
+    other_tools = tools - set([a.tool])
+    for t in other_tools:
+        if is_valid_tool(get_risk_level(a.coords), t):
+            neighbors.append(Node(a.coords, t))
+            
+    return neighbors
+
+def is_goal_fn(a):
+    global target
+    return a.coords == target and a.tool == Tools.TORCH
+
+def get_key_fn(a):
+    return f'{a.coords.x},{a.coords.y},{a.tool}'
+
+d = astar(Node(Vector2(0, 0), Tools.TORCH), is_goal_fn, heuristic, cost, get_neighbors, get_key_fn)
+
+print(d)

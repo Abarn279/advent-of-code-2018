@@ -6,6 +6,10 @@ class Vector2:
         return (self.x, self.y)
     def to_yx_tuple(self):
         return (self.y, self.x)
+    def manhattan_distance(self, other):
+        return abs(self.x - other.x) + abs(self.y - other.y)
+    def sqr_magnitude(self):
+        return self.x ** 2 + self.y ** 2
     def __add__(self, other):
         return Vector2(self.x + other.x, self.y + other.y)
     def __mul__(self, other):
