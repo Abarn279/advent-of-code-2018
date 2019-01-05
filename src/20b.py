@@ -26,6 +26,6 @@ for c in path_regex:
     elif c == '|':
         loc = stack[-1]
 
-print(max(grid.values(), key = lambda x: x.dist).dist)
+print(sum(1 for k, v in grid.items() if v.dist >= 1000))
 
 
